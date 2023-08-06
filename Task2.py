@@ -47,7 +47,9 @@ def fun_log(func: Callable) -> Callable[..., None]:
         name = f"{func.__name__}.json"
         if os.path.exists(name):
             with open(name, encoding="utf-8") as json_f:
-                res_dict = json.load(json_f)
+                if json_f.read():
+                    json_f.seek(0)
+                    res_dict = json.load(json_f)
 
         with open(name, "w", encoding="utf-8") as json_f:
             res_dict[str(args)] = args
@@ -57,9 +59,10 @@ def fun_log(func: Callable) -> Callable[..., None]:
 
     return wrapper
 
-@fun_log
-@check_param
+
 @repeat_runs(count=2)
+@check_param
+@fun_log
 def guess_num(num: int, count: int):
     secret = randint(1, num)
     print(f"Угадайте число от 1 до {num}. У вас {count} попыток.")
